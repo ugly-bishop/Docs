@@ -31,11 +31,26 @@
           "icon": "newspaper"
         }
       ]
-    }
+    },
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "index",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Collections",
+        "pages": [
+          "collections/supported-currencies"
+        ]
+      }
+    ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/tabs.png",
+    "dark": "/logo/tabs.png"
   },
   "navbar": {
     "links": [
