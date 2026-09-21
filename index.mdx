@@ -1,66 +1,65 @@
 ---
-title: "Introduction to Tabs Connect"
-description: "Tabs Connect lets businesses issue global accounts, collect from customers and counterparties, and pay out in 10 currencies to 80+ countries."
+title: "Tabs Developer Documentation"
 sidebarTitle: "Introduction"
-icon: "android"
+description: "Build global money movement, multi-currency collections, instant bank transfers, and real-time webhook automation with the Tabs Developer Platform."
 ---
 
-Tabs Connect is a global money movement platform for businesses. Issue named global accounts to collect funds from your customers and counterparties, then pay out across 10 currencies to over 80 countries, all from a single integration.
+Tabs Connect is a bank-grade money movement platform for global businesses. Issue named collection accounts, manage multi-currency balances, execute instant bank transfers and international payouts, swap currencies with guaranteed FX rates, and listen to real-time events via cryptographically signed webhooks.
 
-## What you can do with Tabs Connect
+## Core capabilities
 
 <CardGroup cols={2}>
-  <Card title="Issue global accounts" icon="building-columns">
-    Provide your customers and counterparties with named accounts in major currencies to receive funds locally.
+  <Card title="Multi-currency wallets" icon="wallet" href="/api-reference/wallets/list">
+    Manage real-time balances across 10+ fiat currencies and USD stablecoins (USDT, USDC).
   </Card>
 
-  <Card title="Collect from anywhere" icon="download">
-    Accept incoming payments from customers and counterparties around the world into your global accounts.
+  <Card title="Dedicated virtual accounts" icon="building-columns" href="/collections/virtual-accounts">
+    Issue dedicated Nigerian virtual accounts to collect funds locally via NIP bank transfers.
   </Card>
 
-  <Card title="Pay out in 10 currencies" icon="money-bill-transfer">
-    Send funds in the local currency of your recipient across a wide range of supported corridors.
+  <Card title="Global payouts & transfers" icon="paper-plane" href="/api-reference/payouts/create">
+    Initiate instant commercial bank transfers, verify account names, and disburse international wires.
   </Card>
 
-  <Card title="Reach 80+ countries" icon="globe">
-    Move money to recipients in more than 80 countries through a single API and dashboard.
+  <Card title="Guaranteed FX rates" icon="arrow-right-arrow-left" href="/api-reference/fx/quotes">
+    Stream real-time exchange rates and lock in institutional quotes with guaranteed execution windows.
+  </Card>
+
+  <Card title="Idempotent & safe" icon="shield-check" href="/development/idempotency">
+    Safeguard financial mutations with bank-grade idempotency keys to eliminate double-charges.
+  </Card>
+
+  <Card title="Signed webhooks" icon="bell" href="/webhooks/overview">
+    Receive real-time notifications for deposits and payout settlements with HMAC SHA-256 signatures.
   </Card>
 </CardGroup>
 
-## Who it's for
+## Getting started
 
-Tabs Connect is built for businesses that move money across borders at scale, including:
-
-- Marketplaces paying out sellers, creators, and service providers
-- Payroll and contractor platforms disbursing wages globally
-- Financial institutions and fintechs offering multi-currency accounts to their users
-- Import, export, and B2B businesses collecting from and paying counterparties abroad
-
-## How it works
+Follow our structured guides to integrate Tabs into your tech stack:
 
 <Steps>
-  <Step title="Create global accounts">
-    Issue named collection accounts in supported currencies for your business, customers, or counterparties.
+  <Step title="Follow the 5-minute quickstart">
+    Set up your merchant API key and make your first authenticated API request.
+    <br />
+    [Read the quickstart guide](/quickstart)
   </Step>
-  <Step title="Collect incoming funds">
-    Share account details with payers so they can send funds locally, without international transfer friction.
+
+  <Step title="Configure authentication & scopes">
+    Learn how to pass bearer tokens, manage live and test environments, and restrict key scopes.
+    <br />
+    [Explore authentication](/development/authentication)
   </Step>
-  <Step title="Pay out globally">
-    Initiate payouts in any of 10 supported currencies to recipients in 80\+ countries.
+
+  <Step title="Listen to real-time webhooks">
+    Register an HTTPS endpoint in your merchant dashboard and verify incoming HMAC signatures.
+    <br />
+    [Set up webhooks](/webhooks/overview)
   </Step>
-  <Step title="Reconcile and report">
-    Track balances, transactions, and payout status across every currency in one place.
+
+  <Step title="Integrate API endpoints">
+    Explore interactive API documentation and code samples in cURL, Node.js, and Python.
+    <br />
+    [Browse API reference](/api-reference/wallets/list)
   </Step>
 </Steps>
-
-## Next steps
-
-<CardGroup cols={2}>
-  <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Set up your account and make your first collection or payout with Tabs Connect.
-  </Card>
-
-  <Card title="Supported currencies and countries" icon="globe" horizontal href="/quickstart">
-    Review the currencies you can hold and pay out in, and the countries you can reach.
-  </Card>
-</CardGroup>

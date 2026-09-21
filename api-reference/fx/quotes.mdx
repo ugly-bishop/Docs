@@ -1,0 +1,101 @@
+---
+title: "Request Guaranteed FX Quote"
+sidebarTitle: "Create Quote"
+api: "POST /v1/fx/quotes"
+description: "Lock in an institutional exchange rate for a foreign currency amount with a fixed validity countdown."
+---
+
+Locks in an exchange rate for a specified foreign amount. Returns a quote ID that can be passed to payouts or converted before expiration.
+
+### Scopes required
+
+`fx:write` or `*`
+
+### Headers
+
+<ParamField header="Authorization" type="string" required>
+  Bearer API secret key formatted as `Bearer sk_live_...` or `Bearer sk_test_...`.
+</ParamField>
+
+### Body
+
+<ParamField body="currency" type="string" required>
+  Foreign currency to buy or quote (e.g. `USD`, `GBP`, `EUR`).
+</ParamField>
+<ParamField body="foreignAmount" type="number" required>
+  Amount in foreign currency major units (e.g. `1000` for 1,000 USD).
+</ParamField>
+
+### Response
+
+<ResponseField name="quoteId" type="string">
+  Unique quote identifier.
+</ResponseField>
+<ResponseField name="rate" type="number">
+  Locked exchange rate.
+</ResponseField>
+<ResponseField name="foreignAmount" type="number">
+  The requested foreign currency amount.
+</ResponseField>
+<ResponseField name="ngnAmount" type="number">
+  Calculated total in Nigerian Naira (NGN) to debit.
+</ResponseField>
+<ResponseField name="expiresAt" type="string">
+  ISO timestamp after which this guaranteed rate expires.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.tabsglobal.co/v1/fx/quotes" \
+  -H "Authorization: Bearer sk_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currency": "USD",
+    "foreignAmount": 5000
+  }'
+```
+
+```javascript Node.js
+const response = await fetch("https://api.tabsglobal.co/v1/fx/quotes", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${process.env.TABS_SECRET_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    currency: "USD",
+    foreignAmount: 5000,
+  }),
+});
+
+const quote = await response.json();
+console.log(quote);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.tabsglobal.co/v1/fx/quotes",
+    headers={
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+    },
+    json={"currency": "USD", "foreignAmount": 5000},
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201 Created
+{
+  "quoteId": "quote_7e2a9b1c-4d3f-4e5a-8b2c-1d0f3a4b5c6d",
+  "currency": "USD",
+  "foreignAmount": 5000,
+  "rate": 1625.50,
+  "ngnAmount": 8127500.00,
+  "expiresAt": "2026-09-21T03:00:00.000Z"
+}
+```
+</ResponseExample>

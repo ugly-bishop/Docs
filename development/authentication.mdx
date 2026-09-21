@@ -1,0 +1,91 @@
+---
+title: "Authentication"
+sidebarTitle: "Authentication"
+description: "Authenticate your API requests securely using merchant secret keys."
+---
+
+All requests to the Tabs Developer API (`/v1/...`) require authentication using a secret API key. You generate and manage these keys in the **Developers > API Keys** section of the [Tabs Merchant Portal](https://app.tabsglobal.co).
+
+## API key format
+
+Tabs keys use standardized environment prefixes:
+
+- **Live environment**: `sk_live_...` (e.g. `sk_live_4f9a7b8e12d3...`)
+- **Test environment**: `sk_test_...` (e.g. `sk_test_9c2d1e0a4f5b...`)
+
+Live keys execute real-world money movement and debit actual funds. Test keys simulate responses and allow safe sandbox testing without financial risk.
+
+<Warning>
+  Tabs stores only a one-way cryptographic SHA-256 hash of your API key. When you generate a key, copy and store it securely. You cannot retrieve the plaintext key later.
+</Warning>
+
+---
+
+## Passing your key
+
+You can supply your API key in one of two HTTP headers:
+
+### 1. Bearer token (recommended)
+
+Pass the key in the standard `Authorization` header with the `Bearer` prefix:
+
+```http
+Authorization: Bearer sk_live_your_secret_key_here
+```
+
+### 2. Custom header
+
+Alternatively, pass the key directly in the `X-API-Key` header:
+
+```http
+X-API-Key: sk_live_your_secret_key_here
+```
+
+---
+
+## Granular scopes
+
+When generating a key in the merchant portal, you can grant wildcard access (`*`) or restrict the key to specific functional permissions:
+
+| Scope | Permission |
+| --- | --- |
+| `*` | Full access across all developer endpoints |
+| `wallets:read` | View balances and virtual account details |
+| `wallets:write` | Generate crypto deposit addresses |
+| `payouts:read` | List banks, payouts, and resolve account names |
+| `payouts:write` | Initiate transfers and payouts |
+| `fx:read` | View live foreign exchange rates |
+| `fx:write` | Generate locked FX quotes and execute swaps |
+| `beneficiaries:read` | View saved beneficiaries and corridor requirements |
+| `beneficiaries:write` | Create or remove saved beneficiaries |
+| `transactions:read` | Query historical financial transactions |
+
+If a request attempts an operation outside of the key's assigned scopes, the API returns `403 Forbidden`:
+
+```json
+{
+  "statusCode": 403,
+  "message": "Missing required API scope: payouts:write",
+  "error": "Forbidden"
+}
+```
+
+---
+
+## IP allowlisting
+
+For high-security server-to-server integrations, you can restrict an API key to specific static IP addresses or CIDR blocks (e.g. `198.51.100.42` or `198.51.100.0/24`).
+
+When configured, requests originating from unlisted IP addresses are immediately rejected with `403 Forbidden`.
+
+---
+
+## Key rolling and rotation
+
+If an API key is compromised, or as part of routine security maintenance:
+
+1. Navigate to **Developers > API Keys** in the merchant portal.
+2. Click **Roll Key** next to the target key.
+3. Tabs immediately generates a new replacement key and keeps the old key active for a **24-hour grace period**.
+4. Update your backend services with the new key.
+5. After 24 hours (or upon clicking **Revoke**), the previous key ceases to function permanently.

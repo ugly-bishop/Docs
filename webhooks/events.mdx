@@ -1,0 +1,140 @@
+---
+title: "Webhook Event Catalog"
+sidebarTitle: "Event Catalog"
+description: "Explore the schema and payload structure for all events dispatched by Tabs."
+---
+
+Every webhook dispatched by Tabs contains standard envelope fields alongside event-specific details in the `data` object:
+
+```json
+{
+  "id": "evt_9a4f2b1c-38d7-4e6a-b51f-29d0e14a8b7c",
+  "type": "deposit.credited",
+  "createdAt": "2026-09-21T02:30:15.120Z",
+  "data": { ... }
+}
+```
+
+---
+
+## Supported events
+
+| Event Name | Trigger Description |
+| --- | --- |
+| `deposit.credited` | Incoming fiat NIP transfer or crypto deposit has settled in your wallet |
+| `payout.initiated` | Outbound bank transfer or wire has been dispatched to banking switches |
+| `payout.completed` | Payout confirmed successful by the destination bank |
+| `payout.failed` | Payout failed or rejected by destination switch; funds auto-refunded |
+| `endpoint.ping` | Connectivity test dispatched on demand from the merchant portal |
+
+---
+
+## Event payloads
+
+### `deposit.credited`
+
+Triggered when inbound funds settle into an account or crypto deposit address.
+
+```json
+{
+  "id": "evt_1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+  "type": "deposit.credited",
+  "createdAt": "2026-09-21T02:30:15.120Z",
+  "data": {
+    "depositId": "dep_8f7e6d5c-4b3a-2109-8765-43210fedcba9",
+    "currency": "NGN",
+    "amount": "150000.00",
+    "channel": "VIRTUAL_ACCOUNT",
+    "senderName": "OLUMIDE JOHNSON",
+    "reference": "NIP-DEP-99481029",
+    "creditedAt": "2026-09-21T02:30:14.980Z"
+  }
+}
+```
+
+---
+
+### `payout.initiated`
+
+Triggered when a transfer request is queued and submitted to clearing networks.
+
+```json
+{
+  "id": "evt_2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+  "type": "payout.initiated",
+  "createdAt": "2026-09-21T02:35:00.000Z",
+  "data": {
+    "payoutId": "payout_8e16bf9c-6874-4ec5-bda2-1d54e48b81ea",
+    "reference": "TABS_PO_1726884000123",
+    "amount": 25000,
+    "currency": "NGN",
+    "recipientName": "ADEWALE ADELEKE",
+    "bankCode": "058",
+    "accountNumber": "0123456789"
+  }
+}
+```
+
+---
+
+### `payout.completed`
+
+Triggered when the destination financial institution confirms final credit to the beneficiary.
+
+```json
+{
+  "id": "evt_3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+  "type": "payout.completed",
+  "createdAt": "2026-09-21T02:35:12.450Z",
+  "data": {
+    "payoutId": "payout_8e16bf9c-6874-4ec5-bda2-1d54e48b81ea",
+    "reference": "TABS_PO_1726884000123",
+    "amount": 25000,
+    "currency": "NGN",
+    "fee": 50,
+    "recipientName": "ADEWALE ADELEKE",
+    "sessionId": "999058260921023512349182374921",
+    "completedAt": "2026-09-21T02:35:12.400Z"
+  }
+}
+```
+
+---
+
+### `payout.failed`
+
+Triggered if a transfer is rejected by the beneficiary switch (e.g. invalid account, beneficiary bank offline). Any debited amount is immediately refunded to your merchant wallet balance.
+
+```json
+{
+  "id": "evt_4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+  "type": "payout.failed",
+  "createdAt": "2026-09-21T02:35:45.890Z",
+  "data": {
+    "payoutId": "payout_8e16bf9c-6874-4ec5-bda2-1d54e48b81ea",
+    "reference": "TABS_PO_1726884000123",
+    "amount": 25000,
+    "currency": "NGN",
+    "failureReason": "Destination switch timed out or account restricted",
+    "refunded": true
+  }
+}
+```
+
+---
+
+### `endpoint.ping`
+
+Triggered when you click **Send Test Ping** from the merchant portal.
+
+```json
+{
+  "id": "evt_5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+  "type": "endpoint.ping",
+  "createdAt": "2026-09-21T02:40:00.000Z",
+  "data": {
+    "message": "This is a test ping from Tabs Global to verify webhook delivery.",
+    "endpointId": "ep_3f9a7b1c-8e2d-4b5a-9c6d-1e0f2a3b4c5d"
+  }
+}
+```

@@ -9,41 +9,76 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    },
     "groups": [
       {
         "group": "Getting Started",
         "pages": [
           "index",
-          "quickstart"
+          "quickstart",
+          "development/authentication",
+          "development/idempotency",
+          "development/errors"
         ]
       },
       {
-        "group": "Collections",
+        "group": "Collections & Accounts",
         "pages": [
-          "collections/supported-currencies"
+          "collections/supported-currencies",
+          "collections/virtual-accounts",
+          "collections/crypto-deposits"
+        ]
+      },
+      {
+        "group": "Webhooks",
+        "pages": [
+          "webhooks/overview",
+          "webhooks/signatures",
+          "webhooks/events",
+          "webhooks/retries"
+        ]
+      },
+      {
+        "group": "Wallets API",
+        "pages": [
+          "api-reference/wallets/list",
+          "api-reference/wallets/get",
+          "api-reference/wallets/virtual-account",
+          "api-reference/wallets/crypto-address"
+        ]
+      },
+      {
+        "group": "Payouts API",
+        "pages": [
+          "api-reference/payouts/banks",
+          "api-reference/payouts/name-enquiry",
+          "api-reference/payouts/create",
+          "api-reference/payouts/list",
+          "api-reference/payouts/get"
+        ]
+      },
+      {
+        "group": "Foreign Exchange (FX) API",
+        "pages": [
+          "api-reference/fx/rates",
+          "api-reference/fx/quotes",
+          "api-reference/fx/forward-quote",
+          "api-reference/fx/inverse-quote"
+        ]
+      },
+      {
+        "group": "Beneficiaries API",
+        "pages": [
+          "api-reference/beneficiaries/requirements",
+          "api-reference/beneficiaries/list",
+          "api-reference/beneficiaries/create",
+          "api-reference/beneficiaries/delete"
+        ]
+      },
+      {
+        "group": "Transactions API",
+        "pages": [
+          "api-reference/transactions/list",
+          "api-reference/transactions/get"
         ]
       }
     ]
@@ -56,13 +91,13 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@tabsglobal.co"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "href": "https://app.tabsglobal.co"
     }
   },
   "contextual": {
@@ -79,9 +114,9 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/tabsglobal",
+      "github": "https://github.com/tabsglobal",
+      "linkedin": "https://linkedin.com/company/tabsglobal"
     }
   },
   "fonts": {

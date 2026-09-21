@@ -1,0 +1,173 @@
+---
+title: "Webhook Signatures"
+sidebarTitle: "Verifying Signatures"
+description: "Verify incoming webhook signatures with HMAC SHA-256 to prevent spoofing and replay attacks."
+---
+
+Tabs cryptographically signs all outbound webhook deliveries using HMAC SHA-256. Every delivery includes a `Tabs-Signature` HTTP header that lets your server verify the payload's integrity and authenticity.
+
+## The `Tabs-Signature` header
+
+The header contains a timestamp and one or more signatures separated by commas:
+
+```http
+Tabs-Signature: t=1726884000,v1=9b1d7f6a8e5c3b2a1f0d4e7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c
+```
+
+- `t`: The UNIX timestamp (in seconds) when the signature was computed.
+- `v1`: The hexadecimal HMAC-SHA256 hash of the payload signed with your endpoint's secret (`whsec_...`).
+
+---
+
+## Verification steps
+
+To verify an incoming webhook:
+
+1. **Extract timestamp and signature**: Parse `t` and `v1` from the `Tabs-Signature` header.
+2. **Prevent replay attacks**: Compute `Date.now() / 1000 - timestamp`. If the difference exceeds your tolerance window (we recommend **300 seconds / 5 minutes**), reject the request.
+3. **Construct the signed payload**: Concatenate the string timestamp, a period (`.`), and the **raw untouched request body**:
+   ```
+   signedPayload = `${timestamp}.${rawBody}`
+   ```
+4. **Compute expected HMAC**: Generate an HMAC with SHA-256 using your endpoint secret (`whsec_...`) as the key and `signedPayload` as the data.
+5. **Constant-time comparison**: Compare the computed signature to the `v1` value using constant-time string comparison to prevent timing attacks.
+
+<Warning>
+  Always verify using the **raw request body buffer or string**. Do not parse JSON before signature verification, as JSON key ordering or whitespace normalization will invalidate the signature.
+</Warning>
+
+---
+
+## Code examples
+
+<CodeGroup>
+```javascript Node.js (Express)
+import crypto from "node:crypto";
+
+export function verifyTabsWebhook(rawBody, signatureHeader, secret, tolerance = 300) {
+  if (!signatureHeader) {
+    throw new Error("Missing Tabs-Signature header");
+  }
+
+  const elements = signatureHeader.split(",");
+  const timestamp = elements.find((e) => e.startsWith("t="))?.split("=")[1];
+  const signature = elements.find((e) => e.startsWith("v1="))?.split("=")[1];
+
+  if (!timestamp || !signature) {
+    throw new Error("Invalid signature format");
+  }
+
+  // Prevent replay attacks
+  const now = Math.floor(Date.now() / 1000);
+  if (Math.abs(now - parseInt(timestamp, 10)) > tolerance) {
+    throw new Error("Webhook timestamp expired or out of tolerance");
+  }
+
+  // Compute expected HMAC
+  const signedPayload = `${timestamp}.${rawBody}`;
+  const expectedSignature = crypto
+    .createHmac("sha256", secret)
+    .update(signedPayload)
+    .digest("hex");
+
+  // Constant-time comparison
+  const isValid = crypto.timingSafeEqual(
+    Buffer.from(signature, "hex"),
+    Buffer.from(expectedSignature, "hex")
+  );
+
+  if (!isValid) {
+    throw new Error("Signature verification failed");
+  }
+
+  return true;
+}
+```
+
+```python Python (FastAPI / Flask)
+import hmac
+import hashlib
+import time
+
+def verify_tabs_webhook(raw_body: bytes, signature_header: str, secret: str, tolerance: int = 300) -> bool:
+    if not signature_header:
+        raise ValueError("Missing Tabs-Signature header")
+
+    pairs = dict(item.split("=") for item in signature_header.split(","))
+    timestamp = pairs.get("t")
+    signature = pairs.get("v1")
+
+    if not timestamp or not signature:
+        raise ValueError("Malformed signature header")
+
+    # Prevent replay attacks
+    if abs(time.time() - int(timestamp)) > tolerance:
+        raise ValueError("Webhook timestamp expired")
+
+    # Compute HMAC SHA-256
+    signed_payload = f"{timestamp}.".encode("utf-8") + raw_body
+    expected_signature = hmac.new(
+        secret.encode("utf-8"),
+        signed_payload,
+        hashlib.sha256
+    ).hexdigest()
+
+    # Constant-time comparison
+    if not hmac.compare_digest(signature, expected_signature):
+        raise ValueError("Signature mismatch")
+
+    return True
+```
+
+```go Go
+package main
+
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"math"
+	"strconv"
+	"strings"
+	"time"
+)
+
+func VerifyTabsWebhook(rawBody []byte, signatureHeader, secret string, tolerance float64) error {
+	var timestampStr, signatureStr string
+	parts := strings.Split(signatureHeader, ",")
+	for _, part := range parts {
+		kv := strings.SplitN(part, "=", 2)
+		if len(kv) == 2 {
+			switch kv[0] {
+			case "t":
+				timestampStr = kv[1]
+			case "v1":
+				signatureStr = kv[1]
+			}
+		}
+	}
+
+	ts, err := strconv.ParseInt(timestampStr, 10, 64)
+	if err != nil {
+		return errors.New("invalid timestamp in signature")
+	}
+
+	if math.Abs(float64(time.Now().Unix()-ts)) > tolerance {
+		return errors.New("timestamp outside of tolerance window")
+	}
+
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(fmt.Sprintf("%s.", timestampStr)))
+	mac.Write(rawBody)
+	expectedSignature := hex.EncodeToString(mac.Sum(nil))
+
+	if !hmac.Equal([]byte(signatureStr), []byte(expectedSignature)) {
+		return errors.New("signature mismatch")
+	}
+
+	return nil
+}
+```
+</CodeGroup>

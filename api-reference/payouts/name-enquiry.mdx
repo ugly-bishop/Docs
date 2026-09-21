@@ -1,0 +1,92 @@
+---
+title: "Resolve Bank Account Name"
+sidebarTitle: "Name Enquiry"
+api: "POST /v1/payouts/name-enquiry"
+description: "Verify recipient account details against the national banking switch before initiating a payout."
+---
+
+Performs real-time account name enquiry against the destination banking switch to confirm the account holder's legal name before executing transfers.
+
+### Scopes required
+
+`payouts:read` or `*`
+
+### Headers
+
+<ParamField header="Authorization" type="string" required>
+  Bearer API secret key formatted as `Bearer sk_live_...` or `Bearer sk_test_...`.
+</ParamField>
+
+### Body
+
+<ParamField body="bankCode" type="string" required>
+  The destination bank's 3-digit code (e.g. `058` for GTBank).
+</ParamField>
+<ParamField body="accountNumber" type="string" required>
+  The 10-digit NUBAN account number.
+</ParamField>
+
+### Response
+
+<ResponseField name="accountNumber" type="string">
+  The validated 10-digit account number.
+</ResponseField>
+<ResponseField name="accountName" type="string">
+  The registered full name of the account holder.
+</ResponseField>
+<ResponseField name="bankCode" type="string">
+  The bank code verified.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.tabsglobal.co/v1/payouts/name-enquiry" \
+  -H "Authorization: Bearer sk_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "bankCode": "058",
+    "accountNumber": "0123456789"
+  }'
+```
+
+```javascript Node.js
+const response = await fetch("https://api.tabsglobal.co/v1/payouts/name-enquiry", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${process.env.TABS_SECRET_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    bankCode: "058",
+    accountNumber: "0123456789",
+  }),
+});
+
+const verification = await response.json();
+console.log(verification);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.tabsglobal.co/v1/payouts/name-enquiry",
+    headers={
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+    },
+    json={"bankCode": "058", "accountNumber": "0123456789"},
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "accountNumber": "0123456789",
+  "accountName": "ADEWALE ADELEKE",
+  "bankCode": "058"
+}
+```
+</ResponseExample>

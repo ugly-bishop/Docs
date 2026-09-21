@@ -1,0 +1,93 @@
+---
+title: "List All Wallets"
+sidebarTitle: "List Wallets"
+api: "GET /v1/wallets"
+description: "Retrieve real-time balances across all fiat and cryptocurrency wallets."
+---
+
+Returns balances across all active currency wallets associated with your merchant account.
+
+### Scopes required
+
+`wallets:read` or `*`
+
+### Headers
+
+<ParamField header="Authorization" type="string" required>
+  Bearer API secret key formatted as `Bearer sk_live_...` or `Bearer sk_test_...`.
+</ParamField>
+
+### Response
+
+<ResponseField name="wallets" type="array">
+  List of wallet balance objects.
+
+  <Expandable title="Wallet properties">
+    <ResponseField name="currency" type="string">
+      ISO currency code or cryptocurrency symbol (e.g. `NGN`, `USD`, `USDT`).
+    </ResponseField>
+    <ResponseField name="balance" type="string">
+      Total balance in major units.
+    </ResponseField>
+    <ResponseField name="availableBalance" type="string">
+      Spendable balance available for payouts and currency swaps.
+    </ResponseField>
+    <ResponseField name="ledgerBalance" type="string">
+      Gross ledger balance including pending incoming settlements.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.tabsglobal.co/v1/wallets" \
+  -H "Authorization: Bearer sk_live_..."
+```
+
+```javascript Node.js
+const response = await fetch("https://api.tabsglobal.co/v1/wallets", {
+  method: "GET",
+  headers: {
+    "Authorization": `Bearer ${process.env.TABS_SECRET_KEY}`,
+  },
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    "https://api.tabsglobal.co/v1/wallets",
+    headers={"Authorization": f"Bearer {API_KEY}"},
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+[
+  {
+    "currency": "NGN",
+    "balance": "1450000.00",
+    "availableBalance": "1450000.00",
+    "ledgerBalance": "1450000.00"
+  },
+  {
+    "currency": "USD",
+    "balance": "8250.00",
+    "availableBalance": "8250.00",
+    "ledgerBalance": "8250.00"
+  },
+  {
+    "currency": "USDT",
+    "balance": "1500.00",
+    "availableBalance": "1500.00",
+    "ledgerBalance": "1500.00"
+  }
+]
+```
+</ResponseExample>

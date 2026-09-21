@@ -1,0 +1,77 @@
+---
+title: "Get Single Wallet Balance"
+sidebarTitle: "Get Wallet Balance"
+api: "GET /v1/wallets/{currency}"
+description: "Retrieve balance and details for a specific currency."
+---
+
+Fetches the balance of a single currency wallet.
+
+### Scopes required
+
+`wallets:read` or `*`
+
+### Path parameters
+
+<ParamField path="currency" type="string" required>
+  The uppercase 3-letter currency code or asset symbol (e.g. `NGN`, `USD`, `EUR`, `GBP`, `USDT`, `USDC`).
+</ParamField>
+
+### Headers
+
+<ParamField header="Authorization" type="string" required>
+  Bearer API secret key formatted as `Bearer sk_live_...` or `Bearer sk_test_...`.
+</ParamField>
+
+### Response
+
+<ResponseField name="currency" type="string">
+  The requested currency code.
+</ResponseField>
+<ResponseField name="balance" type="string">
+  Current ledger balance.
+</ResponseField>
+<ResponseField name="formatted" type="string">
+  Human-readable string formatted with currency code.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.tabsglobal.co/v1/wallets/NGN" \
+  -H "Authorization: Bearer sk_live_..."
+```
+
+```javascript Node.js
+const response = await fetch("https://api.tabsglobal.co/v1/wallets/NGN", {
+  method: "GET",
+  headers: {
+    "Authorization": `Bearer ${process.env.TABS_SECRET_KEY}`,
+  },
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    "https://api.tabsglobal.co/v1/wallets/NGN",
+    headers={"Authorization": f"Bearer {API_KEY}"},
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "currency": "NGN",
+  "balance": "1450000.00",
+  "availableBalance": "1450000.00",
+  "ledgerBalance": "1450000.00",
+  "formatted": "1,450,000.00 NGN"
+}
+```
+</ResponseExample>

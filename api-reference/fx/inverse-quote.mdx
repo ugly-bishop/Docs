@@ -1,0 +1,104 @@
+---
+title: "Request Inverse FX Quote"
+sidebarTitle: "Inverse Quote"
+api: "POST /v1/fx/quotes/inverse"
+description: "Specify the exact target NGN amount to receive and calculate the required source currency debit."
+---
+
+Calculates the exact foreign currency debit needed to receive a target Nigerian Naira (NGN) payout.
+
+### Scopes required
+
+`fx:write` or `*`
+
+### Headers
+
+<ParamField header="Authorization" type="string" required>
+  Bearer API secret key formatted as `Bearer sk_live_...` or `Bearer sk_test_...`.
+</ParamField>
+
+### Body
+
+<ParamField body="sourceCurrency" type="string" required>
+  The source foreign currency being debited (e.g. `USD`, `GBP`, `EUR`).
+</ParamField>
+<ParamField body="targetNgnAmount" type="number" required>
+  Exact target amount in NGN to be received.
+</ParamField>
+
+### Response
+
+<ResponseField name="quoteId" type="string">
+  Unique quote identifier.
+</ResponseField>
+<ResponseField name="rate" type="number">
+  Locked exchange rate.
+</ResponseField>
+<ResponseField name="sourceCurrency" type="string">
+  Source currency.
+</ResponseField>
+<ResponseField name="sourceDebitAmount" type="number">
+  Required foreign currency debit.
+</ResponseField>
+<ResponseField name="targetNgnAmount" type="number">
+  Target NGN amount.
+</ResponseField>
+<ResponseField name="expiresAt" type="string">
+  ISO expiration timestamp.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.tabsglobal.co/v1/fx/quotes/inverse" \
+  -H "Authorization: Bearer sk_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sourceCurrency": "USD",
+    "targetNgnAmount": 5000000
+  }'
+```
+
+```javascript Node.js
+const response = await fetch("https://api.tabsglobal.co/v1/fx/quotes/inverse", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${process.env.TABS_SECRET_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    sourceCurrency: "USD",
+    targetNgnAmount: 5000000,
+  }),
+});
+
+const quote = await response.json();
+console.log(quote);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.tabsglobal.co/v1/fx/quotes/inverse",
+    headers={
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+    },
+    json={"sourceCurrency": "USD", "targetNgnAmount": 5000000},
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201 Created
+{
+  "quoteId": "quote_1c2d3e4f-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+  "sourceCurrency": "USD",
+  "sourceDebitAmount": 3075.98,
+  "rate": 1625.50,
+  "targetNgnAmount": 5000000,
+  "expiresAt": "2026-09-21T03:00:00.000Z"
+}
+```
+</ResponseExample>

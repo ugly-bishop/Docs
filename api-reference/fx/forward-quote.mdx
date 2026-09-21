@@ -1,0 +1,101 @@
+---
+title: "Request Forward FX Quote"
+sidebarTitle: "Forward Quote"
+api: "POST /v1/fx/quotes/forward"
+description: "Specify the exact source wallet amount to debit and calculate the resulting converted foreign amount."
+---
+
+Calculates the foreign currency settlement amount based on the exact amount you wish to debit from your source wallet.
+
+### Scopes required
+
+`fx:write` or `*`
+
+### Headers
+
+<ParamField header="Authorization" type="string" required>
+  Bearer API secret key formatted as `Bearer sk_live_...` or `Bearer sk_test_...`.
+</ParamField>
+
+### Body
+
+<ParamField body="sourceCurrency" type="string" required>
+  The source wallet currency being spent (e.g. `NGN`, `USD`).
+</ParamField>
+<ParamField body="sourceDebitAmount" type="number" required>
+  Exact amount to debit from the source wallet.
+</ParamField>
+
+### Response
+
+<ResponseField name="quoteId" type="string">
+  Unique quote identifier.
+</ResponseField>
+<ResponseField name="rate" type="number">
+  Locked exchange rate.
+</ResponseField>
+<ResponseField name="sourceDebitAmount" type="number">
+  Amount to debit.
+</ResponseField>
+<ResponseField name="targetAmount" type="number">
+  Calculated recipient or converted amount.
+</ResponseField>
+<ResponseField name="expiresAt" type="string">
+  ISO expiration timestamp.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.tabsglobal.co/v1/fx/quotes/forward" \
+  -H "Authorization: Bearer sk_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sourceCurrency": "NGN",
+    "sourceDebitAmount": 10000000
+  }'
+```
+
+```javascript Node.js
+const response = await fetch("https://api.tabsglobal.co/v1/fx/quotes/forward", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${process.env.TABS_SECRET_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    sourceCurrency: "NGN",
+    sourceDebitAmount: 10000000,
+  }),
+});
+
+const quote = await response.json();
+console.log(quote);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.tabsglobal.co/v1/fx/quotes/forward",
+    headers={
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+    },
+    json={"sourceCurrency": "NGN", "sourceDebitAmount": 10000000},
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201 Created
+{
+  "quoteId": "quote_4f1e9b2a-7c3d-4e5f-8a1b-9d0c2e3f4a5b",
+  "sourceCurrency": "NGN",
+  "sourceDebitAmount": 10000000,
+  "rate": 1625.50,
+  "targetAmount": 6151.95,
+  "expiresAt": "2026-09-21T03:00:00.000Z"
+}
+```
+</ResponseExample>

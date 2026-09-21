@@ -1,0 +1,78 @@
+---
+title: "List Supported Banks"
+sidebarTitle: "List Banks"
+api: "GET /v1/payouts/banks"
+description: "Retrieve verified commercial and microfinance banks available for instant payouts."
+---
+
+Returns all verified Nigerian commercial and microfinance banks with their canonical 3-digit CBN bank codes and names.
+
+### Scopes required
+
+`payouts:read` or `*`
+
+### Headers
+
+<ParamField header="Authorization" type="string" required>
+  Bearer API secret key formatted as `Bearer sk_live_...` or `Bearer sk_test_...`.
+</ParamField>
+
+### Response
+
+<ResponseField name="banks" type="array">
+  List of bank objects.
+
+  <Expandable title="Bank properties">
+    <ResponseField name="name" type="string">
+      Commercial or legal bank name.
+    </ResponseField>
+    <ResponseField name="code" type="string">
+      3-digit CBN bank code.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.tabsglobal.co/v1/payouts/banks" \
+  -H "Authorization: Bearer sk_live_..."
+```
+
+```javascript Node.js
+const response = await fetch("https://api.tabsglobal.co/v1/payouts/banks", {
+  method: "GET",
+  headers: {
+    "Authorization": `Bearer ${process.env.TABS_SECRET_KEY}`,
+  },
+});
+
+const banks = await response.json();
+console.log(banks);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    "https://api.tabsglobal.co/v1/payouts/banks",
+    headers={"Authorization": f"Bearer {API_KEY}"},
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+[
+  { "name": "Access Bank", "code": "044" },
+  { "name": "Guaranty Trust Bank (GTBank)", "code": "058" },
+  { "name": "Zenith Bank", "code": "057" },
+  { "name": "United Bank for Africa (UBA)", "code": "033" },
+  { "name": "First Bank of Nigeria", "code": "011" },
+  { "name": "Wema Bank", "code": "035" },
+  { "name": "Kuda Bank", "code": "50211" },
+  { "name": "Opay", "code": "999992" },
+  { "name": "Moniepoint MFB", "code": "50515" }
+]
+```
+</ResponseExample>

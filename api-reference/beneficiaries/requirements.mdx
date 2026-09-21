@@ -1,0 +1,88 @@
+---
+title: "Get Corridor Requirements"
+sidebarTitle: "Corridor Requirements"
+api: "GET /v1/beneficiaries/requirements"
+description: "Retrieve required beneficiary recipient schema and field rules across payout corridors."
+---
+
+Returns dynamic validation requirements and field definitions for each supported payment corridor (e.g. Nigerian NIP, US ACH/Wire, UK Faster Payments, SEPA).
+
+### Scopes required
+
+`beneficiaries:read` or `*`
+
+### Headers
+
+<ParamField header="Authorization" type="string" required>
+  Bearer API secret key formatted as `Bearer sk_live_...` or `Bearer sk_test_...`.
+</ParamField>
+
+### Response
+
+<ResponseField name="corridors" type="object">
+  Map of corridor codes and their required recipient parameters.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.tabsglobal.co/v1/beneficiaries/requirements" \
+  -H "Authorization: Bearer sk_live_..."
+```
+
+```javascript Node.js
+const response = await fetch("https://api.tabsglobal.co/v1/beneficiaries/requirements", {
+  method: "GET",
+  headers: {
+    "Authorization": `Bearer ${process.env.TABS_SECRET_KEY}`,
+  },
+});
+
+const requirements = await response.json();
+console.log(requirements);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    "https://api.tabsglobal.co/v1/beneficiaries/requirements",
+    headers={"Authorization": f"Bearer {API_KEY}"},
+)
+print(response.json())
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 OK
+{
+  "NGN_NIP": {
+    "currency": "NGN",
+    "country": "NGA",
+    "requiredFields": [
+      { "field": "accountNumber", "type": "string", "length": 10 },
+      { "field": "bankCode", "type": "string", "length": 3 },
+      { "field": "accountName", "type": "string" }
+    ]
+  },
+  "USD_WIRE": {
+    "currency": "USD",
+    "country": "USA",
+    "requiredFields": [
+      { "field": "routingNumber", "type": "string", "length": 9 },
+      { "field": "accountNumber", "type": "string" },
+      { "field": "recipientName", "type": "string" },
+      { "field": "recipientAddress", "type": "string" }
+    ]
+  },
+  "GBP_FPS": {
+    "currency": "GBP",
+    "country": "GBR",
+    "requiredFields": [
+      { "field": "sortCode", "type": "string", "length": 6 },
+      { "field": "accountNumber", "type": "string", "length": 8 },
+      { "field": "recipientName", "type": "string" }
+    ]
+  }
+}
+```
+</ResponseExample>

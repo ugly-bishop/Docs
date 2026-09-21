@@ -1,0 +1,57 @@
+---
+title: "Webhook Delivery & Retries"
+sidebarTitle: "Delivery & Retries"
+description: "Learn how Tabs delivers webhooks, handles timeouts, and schedules exponential retries."
+---
+
+Tabs guarantees reliable at-least-once delivery for all event notifications. If your server is temporarily unavailable or returns an error status code, Tabs automatically queues and retries delivery according to an exponential backoff schedule.
+
+## Delivery requirements
+
+For a webhook delivery to be marked as successful, your webhook receiver must:
+
+1. **Respond with an HTTP `2xx` status code** (such as `200 OK` or `204 No Content`).
+2. **Respond within 10 seconds**. Requests exceeding 10 seconds are terminated and treated as failed timeouts.
+
+<Tip>
+  If your webhook processing involves heavy tasks (such as generating PDF invoices or sending emails), acknowledge the webhook with `200 OK` immediately upon signature verification and process work asynchronously in a background queue.
+</Tip>
+
+---
+
+## Retry schedule
+
+If your endpoint returns an HTTP status outside the `2xx` range (e.g. `500 Internal Error`, `502 Bad Gateway`, `404 Not Found`) or times out, Tabs initiates retries:
+
+| Attempt | Delay After Previous Attempt | Approximate Cumulative Time |
+| --- | --- | --- |
+| **Attempt 1** | Immediate | 0 seconds |
+| **Attempt 2** | 1 minute | ~1 minute |
+| **Attempt 3** | 5 minutes | ~6 minutes |
+| **Attempt 4** | 30 minutes | ~36 minutes |
+| **Attempt 5** | 2 hours | ~2.5 hours |
+| **Attempt 6** | 6 hours | ~8.5 hours |
+
+After 6 total failed attempts (initial attempt + 5 retries), delivery transitions to `FAILED` and automatic retries cease.
+
+---
+
+## Manual retries & delivery logs
+
+You can review every delivery attempt, inspect HTTP status codes, latency, and request payloads:
+
+1. Open the [Tabs Merchant Portal](https://app.tabsglobal.co).
+2. Go to **Developers > Webhooks**.
+3. Scroll to the **Recent Deliveries** section.
+4. Click on any failed delivery to inspect the exact error response returned by your server.
+5. Click **Retry Delivery** to immediately re-dispatch the event payload to your endpoint.
+
+---
+
+## Idempotency on webhook receivers
+
+Because webhooks may be retried upon network timeouts, your server might occasionally receive the same event more than once.
+
+To prevent duplicate processing:
+- Record processed event IDs (`event.id`) in your database.
+- If an incoming event has already been recorded as processed, return `200 OK` immediately without re-executing business logic.

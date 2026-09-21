@@ -1,0 +1,88 @@
+---
+title: "Errors & Observability"
+sidebarTitle: "Errors & Rate Limits"
+description: "Understand API response codes, error formats, request tracing, and rate limits."
+---
+
+The Tabs API uses standard HTTP response status codes to indicate the outcome of requests. Every API response includes tracing identifiers to help you debug and inspect interactions.
+
+## Error format
+
+When an API call fails, Tabs returns a structured JSON payload:
+
+```json
+{
+  "statusCode": 400,
+  "message": "accountNumber must be a 10-digit NUBAN string",
+  "error": "Bad Request",
+  "timestamp": "2026-09-21T02:45:12.384Z",
+  "requestId": "9c1a5b48-18e3-4f9e-9d2a-4318d19a71a0"
+}
+```
+
+### Properties
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `statusCode` | integer | The HTTP status code matching the response header |
+| `message` | string \| array | A descriptive error message or array of validation errors |
+| `error` | string | The canonical HTTP error phrase |
+| `timestamp` | string | ISO-8601 timestamp when the failure occurred |
+| `requestId` | string | Unique identifier for tracing the request |
+
+---
+
+## HTTP status codes
+
+| Code | Status | Meaning |
+| --- | --- | --- |
+| `200` | OK | The request succeeded and returned the requested data |
+| `201` | Created | A new resource (payout, quote, beneficiary) was created |
+| `400` | Bad Request | Missing required fields, invalid JSON, or failed input validation |
+| `401` | Unauthorized | Missing or invalid API key |
+| `403` | Forbidden | Insufficient key scopes, unapproved KYC status, or IP not allowed |
+| `404` | Not Found | The requested resource (wallet, payout, beneficiary) does not exist |
+| `409` | Conflict | Concurrent request in-flight with the same `Idempotency-Key` |
+| `422` | Unprocessable Entity | Payload mismatch on replayed idempotency key or business logic error |
+| `429` | Too Many Requests | Rate limit exceeded |
+| `500` | Internal Server Error | An unexpected server error occurred |
+
+---
+
+## Request tracing with `X-Request-Id`
+
+Every response returned by the Tabs API includes an `X-Request-Id` header:
+
+```http
+X-Request-Id: 9c1a5b48-18e3-4f9e-9d2a-4318d19a71a0
+```
+
+### Searching logs in the merchant portal
+
+You can inspect the exact request and response headers, payloads, and latency for any call:
+
+1. Open the [Tabs Merchant Portal](https://app.tabsglobal.co).
+2. Go to **Developers > Request Logs**.
+3. Paste the `requestId` into the search field.
+4. Click the row to open the log drawer and inspect full diagnostic details.
+
+---
+
+## Rate limits
+
+To guarantee platform availability and protect core banking rails, Tabs enforces standard rate limits on developer keys:
+
+- **Standard limit**: **120 requests per minute** per merchant.
+- **Burst headroom**: Temporary short bursts are permitted up to 30 requests within a 5-second window.
+
+### Rate limit headers
+
+When rate limits apply, response headers convey current limits:
+
+```http
+X-RateLimit-Limit: 120
+X-RateLimit-Remaining: 118
+X-RateLimit-Reset: 1726884060
+```
+
+If you exceed the limit, the API returns HTTP `429 Too Many Requests` with a `Retry-After` header indicating the number of seconds to wait.
