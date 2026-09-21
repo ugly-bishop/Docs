@@ -5,7 +5,7 @@ api: "GET /v1/wallets/{currency}"
 description: "Retrieve balance and details for a specific currency."
 ---
 
-Fetches the balance of a single currency wallet.
+Fetches the balance of a single currency wallet by its currency code.
 
 ### Scopes required
 
@@ -14,7 +14,7 @@ Fetches the balance of a single currency wallet.
 ### Path parameters
 
 <ParamField path="currency" type="string" required>
-  The uppercase 3-letter currency code or asset symbol (e.g. `NGN`, `USD`, `EUR`, `GBP`, `USDT`, `USDC`).
+  The uppercase currency code (e.g. `NGN`, `USD`).
 </ParamField>
 
 ### Headers
@@ -25,14 +25,14 @@ Fetches the balance of a single currency wallet.
 
 ### Response
 
+<ResponseField name="id" type="string">
+  Unique wallet UUID.
+</ResponseField>
 <ResponseField name="currency" type="string">
   The requested currency code.
 </ResponseField>
-<ResponseField name="balance" type="string">
-  Current ledger balance.
-</ResponseField>
-<ResponseField name="formatted" type="string">
-  Human-readable string formatted with currency code.
+<ResponseField name="balanceMinor" type="string">
+  Current balance in minor units (e.g. `145000000` = 1,450,000.00 NGN).
 </ResponseField>
 
 <RequestExample>
@@ -67,11 +67,9 @@ print(response.json())
 <ResponseExample>
 ```json 200 OK
 {
+  "id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
   "currency": "NGN",
-  "balance": "1450000.00",
-  "availableBalance": "1450000.00",
-  "ledgerBalance": "1450000.00",
-  "formatted": "1,450,000.00 NGN"
+  "balanceMinor": "145000000"
 }
 ```
 </ResponseExample>

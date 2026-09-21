@@ -4,25 +4,28 @@ sidebarTitle: "Crypto Deposits"
 description: "Accept multi-chain cryptocurrency deposits and settle funds directly into your merchant balances."
 ---
 
-Tabs enables global businesses to accept deposits in USD-pegged stablecoins (USDT, USDC) and digital assets across major blockchain networks.
+Tabs enables global businesses to accept deposits in USDT across major blockchain networks.
 
-Each merchant can generate dedicated, persistent deposit addresses tied to their account. When incoming transactions achieve the required network confirmations, balances credit automatically to your wallet.
+Each merchant can generate dedicated, persistent deposit addresses tied to their account. When incoming transactions are detected and credited, funds settle directly into your merchant balance.
 
 ## Supported blockchain networks
 
-| Network Identifier | Network Name | Asset Standard | Confirmations Required |
-| --- | --- | --- | --- |
-| `TRON` | Tron Network | TRC-20 (USDT) | 19 confirmations (~1 min) |
-| `ETHEREUM` | Ethereum Mainnet | ERC-20 (USDT, USDC) | 12 confirmations (~3 mins) |
-| `BINANCE_SMART_CHAIN` | BNB Smart Chain | BEP-20 (USDT, USDC) | 15 confirmations (~1 min) |
-| `POLYGON` | Polygon PoS | ERC-20 (USDC, USDT) | 64 confirmations (~2 mins) |
-| `BITCOIN` | Bitcoin Network | Native BTC | 2 confirmations (~20 mins) |
+When requesting a crypto deposit address, specify one of the following supported network codes in the `network` field:
+
+| Network Code (`network`) | Blockchain Network | Asset Supported |
+| --- | --- | --- |
+| `TRON` | Tron Network | USDT (TRC-20) |
+| `ETH` | Ethereum Mainnet | USDT (ERC-20) |
+| `SOL` | Solana | USDT (SPL) |
+| `POLYGON` | Polygon PoS | USDT |
+| `BASE` | Base | USDT |
+| `ARBITRUM` | Arbitrum One | USDT |
 
 ---
 
 ## Generating a deposit address
 
-Call `POST /v1/wallets/crypto-address` with the desired network to retrieve or generate a dedicated address:
+Call `POST /v1/wallets/crypto-address` with the desired network code:
 
 <CodeGroup>
 ```bash cURL
@@ -68,20 +71,21 @@ print(response.json())
 ```json
 {
   "network": "TRON",
+  "asset": "USDT",
   "address": "TLyqzVGLV1nmKBWcDqGzBfZpTXWp4Dk9gM",
   "createdAt": "2026-09-21T01:15:00.000Z"
 }
 ```
 
 <Note>
-  Deposit addresses are persistent. Re-calling this endpoint with the same network returns your existing assigned address.
+  Deposit addresses are persistent per network. Re-calling this endpoint with the same network code returns your existing assigned address.
 </Note>
 
 ---
 
 ## Deposit notifications
 
-When an incoming transfer reaches required block confirmations, your wallet is credited and Tabs dispatches a `deposit.credited` event:
+When an incoming transfer settles, Tabs credits your balance and dispatches a `deposit.credited` event to your registered webhooks:
 
 ```json
 {

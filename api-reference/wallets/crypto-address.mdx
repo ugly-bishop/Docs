@@ -20,13 +20,16 @@ Generates or fetches the merchant's dedicated cryptocurrency deposit address for
 ### Body
 
 <ParamField body="network" type="string" required>
-  The target blockchain network: `TRON`, `ETHEREUM`, `BINANCE_SMART_CHAIN`, `POLYGON`, or `BITCOIN`.
+  The target blockchain network: `TRON`, `ETH`, `SOL`, `POLYGON`, `BASE`, or `ARBITRUM`.
 </ParamField>
 
 ### Response
 
 <ResponseField name="network" type="string">
   The requested network identifier.
+</ResponseField>
+<ResponseField name="asset" type="string">
+  The token asset standard (e.g. `USDT`).
 </ResponseField>
 <ResponseField name="address" type="string">
   The multi-chain deposit address.
@@ -78,6 +81,7 @@ print(response.json())
 ```json 201 Created
 {
   "network": "TRON",
+  "asset": "USDT",
   "address": "TLyqzVGLV1nmKBWcDqGzBfZpTXWp4Dk9gM",
   "createdAt": "2026-09-21T01:15:00.000Z"
 }

@@ -2,10 +2,10 @@
 title: "Request Guaranteed FX Quote"
 sidebarTitle: "Create Quote"
 api: "POST /v1/fx/quotes"
-description: "Lock in an institutional exchange rate for a foreign currency amount with a fixed validity countdown."
+description: "Lock in an institutional exchange rate for a foreign currency amount with a 60-second validity countdown."
 ---
 
-Locks in an exchange rate for a specified foreign amount. Returns a quote ID that can be passed to payouts or converted before expiration.
+Locks in an exchange rate for a specified foreign amount. Returns a quote with amounts in minor units that can be passed to payouts before expiration.
 
 ### Scopes required
 
@@ -20,10 +20,10 @@ Locks in an exchange rate for a specified foreign amount. Returns a quote ID tha
 ### Body
 
 <ParamField body="currency" type="string" required>
-  Foreign currency to buy or quote (e.g. `USD`, `GBP`, `EUR`).
+  Foreign payout currency (`USD`, `GBP`, `EUR`).
 </ParamField>
 <ParamField body="foreignAmount" type="number" required>
-  Amount in foreign currency major units (e.g. `1000` for 1,000 USD).
+  Amount in foreign currency major units (e.g. `5000` for 5,000 USD).
 </ParamField>
 
 ### Response
@@ -31,17 +31,29 @@ Locks in an exchange rate for a specified foreign amount. Returns a quote ID tha
 <ResponseField name="quoteId" type="string">
   Unique quote identifier.
 </ResponseField>
+<ResponseField name="currency" type="string">
+  Currency quoted.
+</ResponseField>
+<ResponseField name="direction" type="string">
+  Quote direction (`NGN_TO_FOREIGN`).
+</ResponseField>
+<ResponseField name="foreignAmountMinor" type="string">
+  Target foreign currency amount in minor units as a string.
+</ResponseField>
 <ResponseField name="rate" type="number">
   Locked exchange rate.
 </ResponseField>
-<ResponseField name="foreignAmount" type="number">
-  The requested foreign currency amount.
+<ResponseField name="transferFeeMinor" type="string">
+  Corridor transfer fee in NGN minor units.
 </ResponseField>
-<ResponseField name="ngnAmount" type="number">
-  Calculated total in Nigerian Naira (NGN) to debit.
+<ResponseField name="ngnAmountMinor" type="string">
+  Calculated total in Nigerian Naira (NGN) minor units.
+</ResponseField>
+<ResponseField name="totalDebitMinor" type="string">
+  Total NGN amount to debit (amount + fee) in minor units.
 </ResponseField>
 <ResponseField name="expiresAt" type="string">
-  ISO timestamp after which this guaranteed rate expires.
+  ISO timestamp when the 60-second rate lock expires.
 </ResponseField>
 
 <RequestExample>
@@ -92,9 +104,12 @@ print(response.json())
 {
   "quoteId": "quote_7e2a9b1c-4d3f-4e5a-8b2c-1d0f3a4b5c6d",
   "currency": "USD",
-  "foreignAmount": 5000,
+  "direction": "NGN_TO_FOREIGN",
+  "foreignAmountMinor": "500000",
   "rate": 1625.50,
-  "ngnAmount": 8127500.00,
+  "transferFeeMinor": "250000",
+  "ngnAmountMinor": "812750000",
+  "totalDebitMinor": "813000000",
   "expiresAt": "2026-09-21T03:00:00.000Z"
 }
 ```

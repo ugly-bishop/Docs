@@ -5,7 +5,7 @@ api: "POST /v1/payouts"
 description: "Disburse bank transfers locally or internationally with bank-grade idempotency protection."
 ---
 
-Executes an outbound bank transfer or international payout. Requires merchant approval in live environments.
+Executes an outbound bank transfer or international payout. Supports idempotency via the `Idempotency-Key` header.
 
 ### Scopes required
 
@@ -22,14 +22,14 @@ Executes an outbound bank transfer or international payout. Requires merchant ap
 
 ### Body
 
-<ParamField body="amount" type="number" required>
-  Amount in major currency units (e.g. `25000` for 25,000 NGN).
+<ParamField body="amount" type="number">
+  Amount in major currency units for same-currency payouts (e.g. `25000` for 25,000 NGN).
 </ParamField>
-<ParamField body="sourceCurrency" type="string" required>
-  Source wallet currency debited (e.g. `NGN`, `USD`).
+<ParamField body="sourceCurrency" type="string">
+  Source wallet currency debited (e.g. `NGN`, `USD`). Defaults to `NGN`.
 </ParamField>
-<ParamField body="payoutCurrency" type="string" required>
-  Destination currency received by the beneficiary (e.g. `NGN`, `USD`).
+<ParamField body="payoutCurrency" type="string">
+  Destination currency received by the beneficiary (e.g. `NGN`, `USD`). Defaults to `sourceCurrency`.
 </ParamField>
 <ParamField body="recipientName" type="string" required>
   Full legal name of the beneficiary.
@@ -40,11 +40,17 @@ Executes an outbound bank transfer or international payout. Requires merchant ap
 <ParamField body="accountNumber" type="string">
   10-digit NUBAN account number (for Nigerian NIP payouts).
 </ParamField>
+<ParamField body="recipientAddress" type="string">
+  Recipient physical address (required for international wires).
+</ParamField>
 <ParamField body="routing" type="string">
   9-digit ABA routing number (for US ACH/Wire payouts).
 </ParamField>
 <ParamField body="iban" type="string">
   International Bank Account Number (for EUR SEPA payouts).
+</ParamField>
+<ParamField body="bic" type="string">
+  SWIFT / BIC code.
 </ParamField>
 <ParamField body="sortCode" type="string">
   6-digit UK sort code (for GBP Faster Payments).
@@ -53,31 +59,73 @@ Executes an outbound bank transfer or international payout. Requires merchant ap
   Guaranteed quote ID from `POST /v1/fx/quotes` if performing a cross-currency payout.
 </ParamField>
 <ParamField body="narration" type="string">
-  Transfer memo or invoice reference displayed on the recipient's bank statement.
+  Transfer memo or narration displayed on recipient's bank statement.
 </ParamField>
 
 ### Response
 
 <ResponseField name="id" type="string">
-  Unique payout identifier.
-</ResponseField>
-<ResponseField name="status" type="string">
-  Current status: `PROCESSING`, `SUCCESS`, or `FAILED`.
+  Transaction UUID.
 </ResponseField>
 <ResponseField name="reference" type="string">
-  Unique financial transaction reference.
+  Unique payout reference code (e.g. `PO-A1B2C3D4`).
 </ResponseField>
-<ResponseField name="amount" type="number">
-  Amount dispatched.
+<ResponseField name="type" type="string">
+  Transaction type (`PAYOUT`).
+</ResponseField>
+<ResponseField name="status" type="string">
+  Processing status: `PROCESSING` (for instant local NIP) or `PENDING` (for cross-currency FX payouts).
 </ResponseField>
 <ResponseField name="currency" type="string">
-  Destination currency.
+  Payout currency code.
 </ResponseField>
-<ResponseField name="recipientName" type="string">
-  Beneficiary name.
+<ResponseField name="amountMinor" type="string">
+  Amount in minor currency units as a string (e.g. `2500000` = 25,000.00 NGN).
+</ResponseField>
+<ResponseField name="ngnAmountMinor" type="string">
+  Total NGN debit amount in minor units.
+</ResponseField>
+<ResponseField name="recipient" type="string">
+  Recipient legal name.
+</ResponseField>
+<ResponseField name="metadata" type="object">
+  Rail reference and integration provider metadata.
 </ResponseField>
 <ResponseField name="createdAt" type="string">
-  ISO timestamp when payout was initiated.
+  ISO creation timestamp.
+</ResponseField>
+<ResponseField name="completedAt" type="string">
+  Settlement completion timestamp, or `null` if in-flight.
+</ResponseField>
+<ResponseField name="payout" type="object">
+  Detailed payout execution breakdown.
+
+  <Expandable title="Payout properties">
+    <ResponseField name="rate" type="number">
+      Applied conversion rate.
+    </ResponseField>
+    <ResponseField name="transferFeeMinor" type="string">
+      Transfer fees in minor units.
+    </ResponseField>
+    <ResponseField name="totalDebitMinor" type="string">
+      Total wallet debit in minor units.
+    </ResponseField>
+    <ResponseField name="accountNumber" type="string">
+      Beneficiary account number.
+    </ResponseField>
+    <ResponseField name="bank" type="string">
+      Beneficiary bank code or name.
+    </ResponseField>
+    <ResponseField name="narration" type="string">
+      Payment memo.
+    </ResponseField>
+    <ResponseField name="eta" type="string">
+      Estimated settlement arrival (e.g. `Instant`).
+    </ResponseField>
+    <ResponseField name="railReference" type="string">
+      Banking switch reference.
+    </ResponseField>
+  </Expandable>
 </ResponseField>
 
 <RequestExample>
@@ -150,13 +198,35 @@ print(response.json())
 <ResponseExample>
 ```json 201 Created
 {
-  "id": "payout_8e16bf9c-6874-4ec5-bda2-1d54e48b81ea",
+  "id": "7d9c0245-31ba-4f27-a0c3-fba4313f89e2",
+  "reference": "PO-AB12CD34",
+  "type": "PAYOUT",
   "status": "PROCESSING",
-  "reference": "TABS_PO_1726884000123",
-  "amount": 25000,
   "currency": "NGN",
-  "recipientName": "ADEWALE ADELEKE",
-  "createdAt": "2026-09-21T02:00:00.000Z"
+  "amountMinor": "2500000",
+  "ngnAmountMinor": "2500000",
+  "recipient": "ADEWALE ADELEKE",
+  "metadata": {
+    "railReference": "NIP-9948102941",
+    "provider": "embedly"
+  },
+  "createdAt": "2026-09-21T02:00:00.000Z",
+  "completedAt": null,
+  "payout": {
+    "rate": 1,
+    "transferFeeMinor": "0",
+    "totalDebitMinor": "2500000",
+    "recipientAddress": null,
+    "bank": null,
+    "accountNumber": "0123456789",
+    "routing": null,
+    "sortCode": null,
+    "iban": null,
+    "bic": null,
+    "narration": "Invoice settlement #1042",
+    "eta": "Instant",
+    "railReference": "NIP-9948102941"
+  }
 }
 ```
 </ResponseExample>

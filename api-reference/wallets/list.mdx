@@ -2,10 +2,10 @@
 title: "List All Wallets"
 sidebarTitle: "List Wallets"
 api: "GET /v1/wallets"
-description: "Retrieve real-time balances across all fiat and cryptocurrency wallets."
+description: "Retrieve balances across all active merchant wallets."
 ---
 
-Returns balances across all active currency wallets associated with your merchant account.
+Returns balances across all active currency wallets associated with your merchant account. Amounts are represented in minor currency units (e.g. kobo or cents as strings).
 
 ### Scopes required
 
@@ -20,20 +20,17 @@ Returns balances across all active currency wallets associated with your merchan
 ### Response
 
 <ResponseField name="wallets" type="array">
-  List of wallet balance objects.
+  List of wallet objects.
 
   <Expandable title="Wallet properties">
+    <ResponseField name="id" type="string">
+      Unique wallet UUID.
+    </ResponseField>
     <ResponseField name="currency" type="string">
-      ISO currency code or cryptocurrency symbol (e.g. `NGN`, `USD`, `USDT`).
+      Currency code (e.g. `NGN`, `USD`).
     </ResponseField>
-    <ResponseField name="balance" type="string">
-      Total balance in major units.
-    </ResponseField>
-    <ResponseField name="availableBalance" type="string">
-      Spendable balance available for payouts and currency swaps.
-    </ResponseField>
-    <ResponseField name="ledgerBalance" type="string">
-      Gross ledger balance including pending incoming settlements.
+    <ResponseField name="balanceMinor" type="string">
+      Current balance in minor units (e.g. `145000000` = 1,450,000.00 NGN).
     </ResponseField>
   </Expandable>
 </ResponseField>
@@ -71,22 +68,14 @@ print(response.json())
 ```json 200 OK
 [
   {
+    "id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
     "currency": "NGN",
-    "balance": "1450000.00",
-    "availableBalance": "1450000.00",
-    "ledgerBalance": "1450000.00"
+    "balanceMinor": "145000000"
   },
   {
+    "id": "b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e",
     "currency": "USD",
-    "balance": "8250.00",
-    "availableBalance": "8250.00",
-    "ledgerBalance": "8250.00"
-  },
-  {
-    "currency": "USDT",
-    "balance": "1500.00",
-    "availableBalance": "1500.00",
-    "ledgerBalance": "1500.00"
+    "balanceMinor": "825000"
   }
 ]
 ```

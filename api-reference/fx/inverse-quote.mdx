@@ -5,7 +5,7 @@ api: "POST /v1/fx/quotes/inverse"
 description: "Specify the exact target NGN amount to receive and calculate the required source currency debit."
 ---
 
-Calculates the exact foreign currency debit needed to receive a target Nigerian Naira (NGN) payout.
+Calculates the exact foreign currency debit needed to deliver a target Nigerian Naira (NGN) payout.
 
 ### Scopes required
 
@@ -20,10 +20,10 @@ Calculates the exact foreign currency debit needed to receive a target Nigerian 
 ### Body
 
 <ParamField body="sourceCurrency" type="string" required>
-  The source foreign currency being debited (e.g. `USD`, `GBP`, `EUR`).
+  The source foreign currency being debited (`USD`, `GBP`, `EUR`).
 </ParamField>
 <ParamField body="targetNgnAmount" type="number" required>
-  Exact target amount in NGN to be received.
+  Exact target amount in NGN major units to be received.
 </ParamField>
 
 ### Response
@@ -31,17 +31,26 @@ Calculates the exact foreign currency debit needed to receive a target Nigerian 
 <ResponseField name="quoteId" type="string">
   Unique quote identifier.
 </ResponseField>
+<ResponseField name="currency" type="string">
+  Source foreign currency code.
+</ResponseField>
+<ResponseField name="direction" type="string">
+  Quote direction (`FOREIGN_TO_NGN`).
+</ResponseField>
+<ResponseField name="foreignAmountMinor" type="string">
+  Net foreign currency amount needed in minor units.
+</ResponseField>
 <ResponseField name="rate" type="number">
-  Locked exchange rate.
+  Locked buy exchange rate.
 </ResponseField>
-<ResponseField name="sourceCurrency" type="string">
-  Source currency.
+<ResponseField name="transferFeeMinor" type="string">
+  Corridor transfer fee converted to foreign currency minor units.
 </ResponseField>
-<ResponseField name="sourceDebitAmount" type="number">
-  Required foreign currency debit.
+<ResponseField name="ngnAmountMinor" type="string">
+  Target NGN amount in minor units.
 </ResponseField>
-<ResponseField name="targetNgnAmount" type="number">
-  Target NGN amount.
+<ResponseField name="totalDebitMinor" type="string">
+  Total foreign currency amount required to debit in minor units.
 </ResponseField>
 <ResponseField name="expiresAt" type="string">
   ISO expiration timestamp.
@@ -94,10 +103,13 @@ print(response.json())
 ```json 201 Created
 {
   "quoteId": "quote_1c2d3e4f-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
-  "sourceCurrency": "USD",
-  "sourceDebitAmount": 3075.98,
+  "currency": "USD",
+  "direction": "FOREIGN_TO_NGN",
+  "foreignAmountMinor": "307598",
   "rate": 1625.50,
-  "targetNgnAmount": 5000000,
+  "transferFeeMinor": "154",
+  "ngnAmountMinor": "500000000",
+  "totalDebitMinor": "307752",
   "expiresAt": "2026-09-21T03:00:00.000Z"
 }
 ```

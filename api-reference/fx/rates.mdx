@@ -2,10 +2,10 @@
 title: "Get Live FX Rates"
 sidebarTitle: "Live Rates"
 api: "GET /v1/fx/rates"
-description: "Retrieve real-time foreign exchange market rates with institutional markups across supported currency pairs."
+description: "Retrieve real-time foreign exchange buy and sell market rates across supported currency corridors."
 ---
 
-Fetches current real-time exchange rates across all supported currency pairs.
+Fetches current real-time exchange rates with merchant markups across supported payout currencies (`USD`, `GBP`, `EUR`).
 
 ### Scopes required
 
@@ -20,7 +20,19 @@ Fetches current real-time exchange rates across all supported currency pairs.
 ### Response
 
 <ResponseField name="rates" type="object">
-  Map of currency pairs and their current exchange rates against base currencies.
+  Map of currency codes (`USD`, `GBP`, `EUR`) to their buy, sell rates and fixed rail fees.
+
+  <Expandable title="Rate object properties">
+    <ResponseField name="buy" type="number">
+      Customer buy rate (inbound conversion rate to NGN).
+    </ResponseField>
+    <ResponseField name="sell" type="number">
+      Customer sell rate (outbound conversion rate from NGN).
+    </ResponseField>
+    <ResponseField name="fixedFee" type="number">
+      Fixed corridor transfer fee in NGN major units.
+    </ResponseField>
+  </Expandable>
 </ResponseField>
 
 <RequestExample>
@@ -55,23 +67,20 @@ print(response.json())
 <ResponseExample>
 ```json 200 OK
 {
-  "USD_NGN": {
-    "pair": "USD/NGN",
-    "rate": 1625.50,
-    "inverseRate": 0.0006152,
-    "timestamp": "2026-09-21T02:50:00.000Z"
+  "USD": {
+    "buy": 1610.50,
+    "sell": 1635.00,
+    "fixedFee": 2500
   },
-  "GBP_NGN": {
-    "pair": "GBP/NGN",
-    "rate": 2150.25,
-    "inverseRate": 0.0004651,
-    "timestamp": "2026-09-21T02:50:00.000Z"
+  "GBP": {
+    "buy": 2130.00,
+    "sell": 2165.50,
+    "fixedFee": 2500
   },
-  "EUR_NGN": {
-    "pair": "EUR/NGN",
-    "rate": 1780.10,
-    "inverseRate": 0.0005618,
-    "timestamp": "2026-09-21T02:50:00.000Z"
+  "EUR": {
+    "buy": 1765.20,
+    "sell": 1795.00,
+    "fixedFee": 2500
   }
 }
 ```
